@@ -73,6 +73,14 @@ panel_rotate = panel_flipped ? 180 : 0;
 
 margin = 0;
 
+// component centering (for pcb mount components only)
+pin_alignment_mode = false;
+pot_rd901f_offset = 7.5;
+jack_35_offset = 4.6;
+
+// 2.54 vertical position multiplier (for pcb mount components only)
+vertical_mode_254 = false;
+
 module generatePanel() {
     $fn = $preview ? 20 : 100;
 
@@ -339,22 +347,22 @@ module generate_pots(params, width) {
 }
 
 module generate_pots_rd901f(params, width) {
-    translate([width, params[1], component_depth])
+    translate([width, (params[1] * (vertical_mode_254 ? 2.54 : 1)) + (pin_alignment_mode ? pot_rd901f_offset : 0), component_depth])
     rotate([0, 0, params[3] ? params[3] : 0])
     #pot_rd901f();
 
-    translate([width, params[1] + pot_label_distance, panel_thickness - text_depth])
+    translate([width, (params[1] * (vertical_mode_254 ? 2.54 : 1)) + pot_label_distance + (pin_alignment_mode ? pot_rd901f_offset : 0), panel_thickness - text_depth])
     linear_extrude(height = text_depth + 1)
     text(params[2], font = label_font, size = pot_label_font_size, halign = "center", valign = "center");
 }
 
 module generate_jacks(params, width){
     if (!params[3] || params[3] == "35mm") {
-        translate([width, params[1], component_depth])
+        translate([width, (params[1] * (vertical_mode_254 ? 2.54 : 1)) + (pin_alignment_mode ? jack_35_offset : 0), component_depth])
         rotate([0, 0, params[4] ? params[4] : 0])
         #jack_35mm();
 
-        translate([width, params[1] + jack_label_distance, panel_thickness - text_depth])
+        translate([width, (params[1] * (vertical_mode_254 ? 2.54 : 1)) + jack_label_distance + + (pin_alignment_mode ? jack_35_offset : 0), panel_thickness - text_depth])
         linear_extrude(height = text_depth + 1)
         text(params[2], font = label_font, size = jack_label_font_size, halign = "center", valign = "center");
     } else if (params[3] == "14in") {
